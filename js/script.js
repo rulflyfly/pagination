@@ -1,7 +1,7 @@
 const list = document.querySelectorAll('.student-item');
-const track = [...list]; //we need this variable to keep track of the students filtered after search
+let track = [...list]; //we need this variable to keep track of the students filtered after search
 const itemsPerPage = 10;
-const pagesNum = list.length/itemsPerPage;
+
 
 // this function displays students from the big list in sets of itemsPerPage
 const showPage = (list, page) => {
@@ -21,7 +21,7 @@ const showPage = (list, page) => {
 const appendPageLinks = (list) => {
    const pagination = document.createElement('DIV');
    const ul = document.createElement('UL');
-   
+   const pagesNum = list.length/itemsPerPage;
    let page = 1;
 
    for (let i = 0; i < pagesNum; i++) {
@@ -53,7 +53,7 @@ const appendPageLinks = (list) => {
    pagination.className = 'pagination';
    pagination.appendChild(ul);
    
-   document.querySelector('body').appendChild(pagination);
+   document.querySelector('.page').appendChild(pagination);
    showPage(track, page); //calling showpage for the first pagelink since innitially page variable equals one
 };
 
@@ -116,61 +116,33 @@ input.addEventListener('input', () => {
       
      
    }
+
+//and here're we're managing the pagination links 
+//according to the amount of search filtered elements
    
+let pageDiv = document.querySelectorAll('.pagination');
+const ul = document.querySelector('.student-list');
+const notFound = document.createElement('P');
+notFound.textContent = 'No students found'
 
-   // here we will be showing and hiding page links according to the amount of
-   // displayed students (previously there amount of pages was all the list devided by ten
-   // from here it will be all displayed students devided by ten)
+//we need to remove the page links to append the necessary amount of them
+if (pageDiv[0]) {
+   pageDiv[0].remove();
+}
 
-   const newPagesNum = Math.ceil(track.length / itemsPerPage);
-   const pages = document.querySelectorAll('.pagination li');
-   const ul = document.querySelector('.student-list');
-   const notFound = document.createElement('P');
-   notFound.textContent = 'No students found';
+if (input.value === '') {
+   track = [...list];
+   appendPageLinks(track);  //then we'll be appending them using the previously created function
+   ul.removeChild(ul.lastChild);
+} else if (track.length > 0) {
+   appendPageLinks(track);
+   ul.removeChild(ul.lastChild);
+} else {
+   
+   if (ul.lastChild.tagName !== 'P') {
+      ul.appendChild(notFound); 
+   } 
 
-   for (let i = Math.ceil(pagesNum) - 1; i > -1; i--) {  //starting the loop from the end of the pagesNum collection
-                                          
-      if (i >= newPagesNum) {                            //we will not show the links which indeces are more than
-         pages[i].style.display = 'none';                //the amount of pages that we need
-
-         
-         //add and remove notFound message if there're no students with the entered name
-         if (newPagesNum === 0) {
-            
-            if (ul.lastChild.tagName !== 'P') {
-
-            ul.appendChild(notFound);                    
-
-            }
-
-         } else {
-
-            if (ul.lastChild.tagName === 'P') {
-
-            ul.removeChild(ul.lastChild);
-
-            }
-         }
-      } else {
-
-         pages[i].style.display = 'inline';       //to show the links back dynamically 
-
-      }
-
-      //add an event listener to the page links again
-      //after the track array has been changed
-      
-      pages[i].addEventListener('click', (e) => {
-         const aList = document.getElementsByTagName('A');
-         for (let i = 0; i < aList.length; i++) {
-            aList[i].classList.remove('active');
-         }
-
-         e.target.className = 'active';
-         page = parseInt(e.target.textContent);
-         showPage(track, page);
-         
-      });
-   }
+}
 })
 
